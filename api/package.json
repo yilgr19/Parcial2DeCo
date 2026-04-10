@@ -1,0 +1,16 @@
+{
+  "name": "parcial-productos-api",
+  "version": "1.0.0",
+  "description": "API REST productos + JWT (parcial)",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jsonwebtoken": "^9.0.2"
+  }
+}
