@@ -32,6 +32,13 @@ function aplicarFiltros(lista, query) {
   return r;
 }
 
+// Un solo GET /productos: los filtros y la paginación van en la URL como query params (req.query).
+// Ejemplos: /productos?subcategoria=bebidas
+//           /productos?estado=activo
+//           /productos?nombre=coca
+//           /productos?subcategoria=bebidas&estado=activo&nombre=coca
+//           /productos?page=1&limit=5
+//           (se pueden combinar filtros + page + limit en la misma petición)
 router.get("/", (req, res) => {
   const filtrados = aplicarFiltros(store.getProductos(), req.query);
   const total = filtrados.length;

@@ -15,6 +15,24 @@ if (!haySesion()) {
   window.location.href = "login.html";
 }
 
+const IDS_ERR_NUEVO = {
+  nombre: "errNuevoNombre",
+  descripcion: "errNuevoDesc",
+  subcategoria: "errNuevoSub",
+  precio: "errNuevoPrecio",
+  precioxcantidad: "errNuevoPxc",
+  estado: "errNuevoEstado",
+};
+
+const IDS_ERR_EDIT = {
+  nombre: "errEditNombre",
+  descripcion: "errEditDesc",
+  subcategoria: "errEditSub",
+  precio: "errEditPrecio",
+  precioxcantidad: "errEditPxc",
+  estado: "errEditEstado",
+};
+
 const tablaCuerpo = document.getElementById("tablaCuerpo");
 const infoPaginacion = document.getElementById("infoPaginacion");
 const cargandoLista = document.getElementById("cargandoLista");
@@ -82,7 +100,7 @@ btnCrear.addEventListener("click", async () => {
   const valores = leerFormNuevo();
   const errores = validarCamposProducto(valores);
   if (hayErrores(errores)) {
-    pintarErroresLocalesNuevo(errores);
+    pintarErroresLocales(errores, IDS_ERR_NUEVO);
     return;
   }
 
@@ -105,7 +123,7 @@ btnCrear.addEventListener("click", async () => {
     }
 
     if (r.res.status === 400 && r.data.error?.details) {
-      pintarErroresBackendNuevo(r.data.error.details);
+      pintarErroresBackend(r.data.error.details, IDS_ERR_NUEVO);
       if (r.data.error.message) {
         document.getElementById("errNuevoGeneral").textContent =
           r.data.error.message;
@@ -131,7 +149,7 @@ btnGuardarEdit.addEventListener("click", async () => {
   const valores = leerFormEdit();
   const errores = validarCamposProducto(valores);
   if (hayErrores(errores)) {
-    pintarErroresLocalesEdit(errores);
+    pintarErroresLocales(errores, IDS_ERR_EDIT);
     return;
   }
 
@@ -155,7 +173,7 @@ btnGuardarEdit.addEventListener("click", async () => {
     }
 
     if (r.res.status === 400 && r.data.error?.details) {
-      pintarErroresBackendEdit(r.data.error.details);
+      pintarErroresBackend(r.data.error.details, IDS_ERR_EDIT);
       if (r.data.error.message) {
         document.getElementById("errEditGeneral").textContent =
           r.data.error.message;
@@ -378,91 +396,29 @@ function leerFormEdit() {
 }
 
 function limpiarErroresNuevo() {
-  [
-    "errNuevoNombre",
-    "errNuevoDesc",
-    "errNuevoSub",
-    "errNuevoPrecio",
-    "errNuevoPxc",
-    "errNuevoEstado",
-    "errNuevoGeneral",
-  ].forEach((id) => {
+  [...Object.values(IDS_ERR_NUEVO), "errNuevoGeneral"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = "";
   });
 }
 
 function limpiarErroresEdit() {
-  [
-    "errEditNombre",
-    "errEditDesc",
-    "errEditSub",
-    "errEditPrecio",
-    "errEditPxc",
-    "errEditEstado",
-    "errEditGeneral",
-  ].forEach((id) => {
+  [...Object.values(IDS_ERR_EDIT), "errEditGeneral"].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.textContent = "";
   });
 }
 
-function pintarErroresLocalesNuevo(errores) {
-  const map = {
-    nombre: "errNuevoNombre",
-    descripcion: "errNuevoDesc",
-    subcategoria: "errNuevoSub",
-    precio: "errNuevoPrecio",
-    precioxcantidad: "errNuevoPxc",
-    estado: "errNuevoEstado",
-  };
+function pintarErroresLocales(errores, mapaIds) {
   Object.entries(errores).forEach(([campo, msg]) => {
-    const id = map[campo];
+    const id = mapaIds[campo];
     if (id) document.getElementById(id).textContent = msg;
   });
 }
 
-function pintarErroresLocalesEdit(errores) {
-  const map = {
-    nombre: "errEditNombre",
-    descripcion: "errEditDesc",
-    subcategoria: "errEditSub",
-    precio: "errEditPrecio",
-    precioxcantidad: "errEditPxc",
-    estado: "errEditEstado",
-  };
-  Object.entries(errores).forEach(([campo, msg]) => {
-    const id = map[campo];
-    if (id) document.getElementById(id).textContent = msg;
-  });
-}
-
-function pintarErroresBackendNuevo(details) {
-  const map = {
-    nombre: "errNuevoNombre",
-    descripcion: "errNuevoDesc",
-    subcategoria: "errNuevoSub",
-    precio: "errNuevoPrecio",
-    precioxcantidad: "errNuevoPxc",
-    estado: "errNuevoEstado",
-  };
+function pintarErroresBackend(details, mapaIds) {
   details.forEach((d) => {
-    const id = map[d.field];
-    if (id) document.getElementById(id).textContent = d.message;
-  });
-}
-
-function pintarErroresBackendEdit(details) {
-  const map = {
-    nombre: "errEditNombre",
-    descripcion: "errEditDesc",
-    subcategoria: "errEditSub",
-    precio: "errEditPrecio",
-    precioxcantidad: "errEditPxc",
-    estado: "errEditEstado",
-  };
-  details.forEach((d) => {
-    const id = map[d.field];
+    const id = mapaIds[d.field];
     if (id) document.getElementById(id).textContent = d.message;
   });
 }

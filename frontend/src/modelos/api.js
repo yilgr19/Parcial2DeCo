@@ -17,87 +17,59 @@ export async function iniciarSesion(usuario, password) {
 
 function armarQuery(params) {
   const q = new URLSearchParams();
-  Object.entries(params).forEach(([k, v]) => {
+  for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null && String(v).trim() !== "") {
       q.set(k, String(v));
     }
-  });
+  }
   const s = q.toString();
   return s ? `?${s}` : "";
 }
 
-export async function pedirProductos(filtros) {
+async function fetchConToken(ruta, opciones) {
   const token = obtenerToken();
-  const res = await fetch(`${API_URL}/productos${armarQuery(filtros)}`, {
+  const res = await fetch(`${API_URL}${ruta}`, {
+    method: opciones.method || "GET",
     headers: {
       Authorization: `Bearer ${token}`,
+      ...(opciones.body ? { "Content-Type": "application/json" } : {}),
+      ...opciones.headers,
     },
+    body: opciones.body,
   });
   const data = await res.json().catch(() => ({}));
   if (res.status === 401 || res.status === 403) {
-    manejarAccesoDenegado(data, res.status);
+    const msg =
+      data?.error?.message ||
+      (res.status === 403
+        ? "Acceso denegado (usuario inactivo)."
+        : "Sesión inválida o expirada.");
+    borrarToken();
+    guardarMensajeSesion(msg);
+    window.location.href = "login.html";
     return null;
   }
   return { res, data };
 }
 
-export async function crearProducto(body) {
-  const token = obtenerToken();
-  const res = await fetch(`${API_URL}/productos`, {
+export function pedirProductos(filtros) {
+  return fetchConToken(`/productos${armarQuery(filtros)}`, {});
+}
+
+export function crearProducto(body) {
+  return fetchConToken("/productos", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(body),
   });
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 401 || res.status === 403) {
-    manejarAccesoDenegado(data, res.status);
-    return null;
-  }
-  return { res, data };
 }
 
-export async function actualizarProducto(id, body) {
-  const token = obtenerToken();
-  const res = await fetch(`${API_URL}/productos/${id}`, {
+export function actualizarProducto(id, body) {
+  return fetchConToken(`/productos/${id}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
     body: JSON.stringify(body),
   });
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 401 || res.status === 403) {
-    manejarAccesoDenegado(data, res.status);
-    return null;
-  }
-  return { res, data };
 }
 
-export async function eliminarProducto(id) {
-  const token = obtenerToken();
-  const res = await fetch(`${API_URL}/productos/${id}`, {
-    method: "DELETE",
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 401 || res.status === 403) {
-    manejarAccesoDenegado(data, res.status);
-    return null;
-  }
-  return { res, data };
-}
-
-function manejarAccesoDenegado(data, status) {
-  const msg =
-    data?.error?.message ||
-    (status === 403
-      ? "Acceso denegado (usuario inactivo)."
-      : "Sesión inválida o expirada.");
-  borrarToken();
-  guardarMensajeSesion(msg);
-  window.location.href = "login.html";
+export function eliminarProducto(id) {
+  return fetchConToken(`/productos/${id}`, { method: "DELETE" });
 }

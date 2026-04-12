@@ -8,16 +8,11 @@ const router = Router();
 
 router.post("/", (req, res) => {
   const { usuario, password } = req.body || {};
-  if (!usuario || !password) {
-    return respuestas.error(
-      res,
-      401,
-      "INVALID_CREDENTIALS",
-      "Usuario o contraseña incorrectos"
-    );
-  }
+  const user = buscarPorCredenciales(
+    String(usuario ?? "").trim(),
+    String(password ?? "")
+  );
 
-  const user = buscarPorCredenciales(usuario, password);
   if (!user) {
     return respuestas.error(
       res,
