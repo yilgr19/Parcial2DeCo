@@ -1,0 +1,95 @@
+@base = http://localhost:3000
+
+### loginAdmin
+# @name loginAdmin
+POST {{base}}/auth
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "password": "admin123"
+}
+
+### auth 401
+POST {{base}}/auth
+Content-Type: application/json
+
+{
+  "usuario": "admin",
+  "password": "mal"
+}
+
+### productos sin token
+GET {{base}}/productos
+
+### GET productos
+GET {{base}}/productos?page=1&limit=10
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+
+### GET filtros
+GET {{base}}/productos?nombre=coca&subcategoria=bebidas&estado=activo&page=1&limit=5
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+
+### GET por id
+GET {{base}}/productos/1
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+
+### POST producto
+POST {{base}}/productos
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Coca-Cola 600ml",
+  "descripcion": "Bebida gaseosa sabor cola",
+  "subcategoria": "bebidas",
+  "precio": 2500,
+  "precioxcantidad": 10000,
+  "estado": "activo"
+}
+
+### POST validacion 400
+POST {{base}}/productos
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "nombre": "",
+  "descripcion": "x",
+  "subcategoria": "x",
+  "precio": -1,
+  "precioxcantidad": 1,
+  "estado": "otro"
+}
+
+### PUT producto
+PUT {{base}}/productos/1
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+Content-Type: application/json
+
+{
+  "nombre": "Coca-Cola 1.5L",
+  "descripcion": "Bebida gaseosa sabor cola tamaño familiar",
+  "subcategoria": "bebidas",
+  "precio": 4500,
+  "precioxcantidad": 16000,
+  "estado": "activo"
+}
+
+### DELETE producto
+DELETE {{base}}/productos/1
+Authorization: Bearer {{loginAdmin.response.body.$.data.access_token}}
+
+### loginInactivo
+# @name loginInactivo
+POST {{base}}/auth
+Content-Type: application/json
+
+{
+  "usuario": "inactivo",
+  "password": "noactivo1"
+}
+
+### GET productos inactivo 403
+GET {{base}}/productos
+Authorization: Bearer {{loginInactivo.response.body.$.data.access_token}}

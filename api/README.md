@@ -150,7 +150,7 @@ Al final define un manejador para rutas inexistentes (`404`) y pone el servidor 
 
 ### `src/data/usuarios.js`
 
-**Usuarios precargados** según el enunciado (admin, estudiante, inactivo). Exporta el array y una función `buscarPorCredenciales(usuario, password)` que usa `POST /auth` para comprobar login **sin exponer contraseñas en la respuesta** (solo se usa para validar).
+**Usuarios precargados** según el enunciado (admin, estudiante, inactivo). Mantiene la lista en memoria y exporta `buscarPorCredenciales(usuario, password)`, que usa `POST /auth` para validar el login sin devolver contraseñas en la respuesta.
 
 ---
 
@@ -218,29 +218,121 @@ Así las rutas no repiten la estructura del JSON en cada respuesta.
 api/
 ├── package.json
 ├── package-lock.json
-├── node_modules/          ← dependencias (npm install)
+├── pruebas-api.http
+├── scripts/
+│   └── verificar-endpoints.mjs   ← usado por npm run verify
+├── node_modules/
 └── src/
-    ├── index.js           ← arranca el servidor y conecta rutas + middleware
-    ├── config.js          ← puerto y JWT
+    ├── index.js
+    ├── config.js
     ├── data/
-    │   ├── usuarios.js    ← usuarios del enunciado + búsqueda por login
-    │   └── productosStore.js  ← memoria: productos e IDs
+    │   ├── usuarios.js
+    │   └── productosStore.js
     ├── middleware/
-    │   └── authJwt.js     ← Bearer + JWT + usuario activo
+    │   └── authJwt.js
     ├── rutas/
-    │   ├── auth.js        ← POST /auth
-    │   └── productos.js   ← GET/POST/PUT/DELETE /productos
+    │   ├── auth.js
+    │   └── productos.js
     └── utils/
-        ├── respuestas.js  ← formato data / error
+        ├── respuestas.js
         └── validarProducto.js
 ```
 
 ---
 
-## Probar rápido
+## Instalar, ejecutar y probar (bonificación / entrega)
 
-1. `POST http://localhost:3000/auth` con body JSON: `{ "usuario": "admin", "password": "admin123" }`.
+### Instalar y ejecutar
+
+1. `cd api` (o desde la raíz del repo: `npm run setup` si aún no instalaste dependencias).
+2. `npm install`
+3. `npm start` → el servidor debe mostrar `API escuchando en http://localhost:3000`.
+
+### Verificación automática (recomendado — no hace falta pegar tokens)
+
+Con la API **ya en marcha** en otra terminal, en la carpeta `api` ejecutá:
+
+```bash
+npm run verify
+```
+
+El script `scripts/verificar-endpoints.mjs` llama a los endpoints (login, listado, crear, editar, errores, usuario inactivo, borrar, etc.) y muestra líneas `OK` o `FAIL`. Si todo sale bien, al final verás **Resultado: todo OK.**
+
+Si falla la conexión, el mensaje te indica que tenés que arrancar antes la API con `npm start`.
+
+### Probar con el archivo `pruebas-api.http` (extensión REST Client)
+
+**Idea general:** podés enviar peticiones desde el editor con la extensión **REST Client** y el archivo **`api/pruebas-api.http`**.
+
+El archivo ya está armado para que **no tengas que copiar el token a mano**: la primera petición se llama **Login admin** y lleva `# @name loginAdmin`. Las siguientes usan automáticamente `{{loginAdmin.response.body.$.data.access_token}}` en el header `Authorization`.
+
+**Pasos:**
+
+1. Instalá **REST Client** (*Huachao Mao*) en Cursor/VS Code.
+2. `npm start` en `api/` (la API tiene que estar corriendo).
+3. Abrí **`pruebas-api.http`**.
+4. Hacé clic en **Send Request** del bloque **Login admin** primero (así queda guardada la respuesta para el token).
+5. Después podés enviar el resto de bloques en cualquier orden; los que van a `/productos` ya usan el Bearer del login admin.
+6. Para el flujo **usuario inactivo**, enviá antes el bloque **Login — usuario inactivo** (`# @name loginInactivo`) y luego **Listar con token de usuario inactivo**.
+
+Si en tu versión de REST Client no resuelve bien `{{loginAdmin.response...}}`, usá **`npm run verify`** arriba o **Thunder Client** (siguiente sección).
+
+### Verificación con Thunder Client
+
+**Thunder Client** es una extensión de VS Code / Cursor para probar APIs sin salir del editor.
+
+1. **Instalar:** en el panel de extensiones, buscá **Thunder Client** (autor *Ranga Vadhineni*) e instalala.
+2. **Levantar la API:** `npm start` en la carpeta `api/` y comprobá el mensaje `API escuchando en http://localhost:3000`.
+3. **Abrir Thunder Client:** icono del rayo en la barra lateral (o menú *View → Thunder Client*).
+4. **Login (obtener token):**
+   - **New Request** → método **POST** → URL `http://localhost:3000/auth`.
+   - Pestaña **Body** → **JSON** → pegá:  
+     `{"usuario":"admin","password":"admin123"}`  
+   - **Send**. En la respuesta, copiá el valor de `data.access_token` (sin comillas).
+5. **Peticiones a `/productos` (con Bearer):**
+   - Nueva petición **GET** → `http://localhost:3000/productos`.
+   - Pestaña **Auth** → tipo **Bearer** → en **Token** pegá el `access_token` que copiaste (o usá una variable, ver el punto 7).
+   - **Send** → deberías ver **200**, `data` (array) y `pagination`.
+6. **Mismo patrón** para el resto de endpoints (misma base `http://localhost:3000`):
+   - **GET** `http://localhost:3000/productos/1` (Auth → Bearer).
+   - **POST** `http://localhost:3000/productos` → Body JSON con todos los campos del producto (Auth → Bearer).
+   - **PUT** `http://localhost:3000/productos/1` → Body JSON completo (Auth → Bearer).
+   - **DELETE** `http://localhost:3000/productos/1` (Auth → Bearer).
+   - **GET** con query, por ejemplo:  
+     `http://localhost:3000/productos?nombre=coca&subcategoria=bebidas&estado=activo&page=1&limit=10` (Auth → Bearer).
+7. **Opcional — variables:** en Thunder Client podés crear un **Environment** (por ejemplo `local`) con una variable `token`, y en cada request usar **Auth → Bearer** y en el token `{{token}}`. Tras cada login, actualizá el valor de `token` en el entorno para no pegarlo a mano en cada petición.
+8. **Casos extra (401, 403, 400, 404):** probá **GET** `/productos` **sin** pestaña Auth (debería dar **401**). Para **403**, hacé login con `inactivo` / `noactivo1`, copiá ese token y usalo en **GET** `/productos`. Para **404**, **GET** `/productos/9999` con Bearer de admin. Los cuerpos de error coinciden con la tabla de abajo.
+9. **Lista de escenarios:** el archivo **`pruebas-api.http`** del repo enumera los mismos casos; podés **recrear cada uno** como request en Thunder Client o copiar URL, método y JSON desde ahí.
+
+Compará cada respuesta con la **tabla de verificación** siguiente.
+
+### Tabla de verificación rápida (qué deberías obtener)
+
+| Petición (resumen) | Código esperado | Notas |
+|--------------------|-----------------|--------|
+| Login admin correcto | 200 | `data.access_token`, `expires_in`: 3600 |
+| Login mal password | 401 | `INVALID_CREDENTIALS` |
+| GET /productos sin `Authorization` | 401 | `NO_TOKEN` |
+| GET /productos con Bearer válido | 200 | `data` + `pagination` |
+| GET con filtros `nombre`, `subcategoria`, `estado` | 200 | Filtros combinables |
+| GET /productos/:id existente | 200 | Un objeto en `data` |
+| GET /productos/:id inexistente | 404 | `PRODUCT_NOT_FOUND` |
+| POST /productos cuerpo válido | 201 | Producto con `id` autogenerado |
+| POST cuerpo inválido | 400 | `VALIDATION_ERROR` + `details[]` |
+| PUT /productos/:id | 200 | Actualización |
+| DELETE /productos/:id | 200 | `data.message` |
+| Login usuario `inactivo` | 200 | Sigue devolviendo token |
+| GET /productos con ese token | 403 | `USER_INACTIVE` |
+
+### Flujo mínimo manual (sin extensiones)
+
+1. `POST http://localhost:3000/auth` con `{"usuario":"admin","password":"admin123"}`.
 2. Copiar `data.access_token`.
 3. `GET http://localhost:3000/productos` con header `Authorization: Bearer <token>`.
 
-Puedes usar Postman, Thunder Client, o un archivo `.http` en VS Code.
+### Organización del código (enunciado)
+
+- **Rutas:** `src/rutas/` (`auth.js`, `productos.js`).
+- **Middleware JWT:** `src/middleware/authJwt.js`.
+- **Datos en memoria:** `src/data/`.
+- **Utilidades:** `src/utils/` (respuestas JSON y validación).

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar sesión — Productos</title>
+  </head>
+  <body class="min-h-screen bg-slate-100 text-slate-800">
+    <main class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4">
+      <h1 class="mb-6 text-center text-2xl font-semibold text-slate-900">
+        Tienda — Login
+      </h1>
+      <form
+        id="formLogin"
+        class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+      >
+        <div class="mb-4">
+          <label for="usuario" class="mb-1 block text-sm font-medium"
+            >Usuario</label
+          >
+          <input
+            id="usuario"
+            name="usuario"
+            type="text"
+            autocomplete="username"
+            class="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+            required
+          />
+        </div>
+        <div class="mb-6">
+          <label for="password" class="mb-1 block text-sm font-medium"
+            >Contraseña</label
+          >
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            class="w-full rounded border border-slate-300 px-3 py-2 text-sm outline-none ring-blue-500 focus:ring-2"
+            required
+          />
+        </div>
+        <p
+          id="msgError"
+          class="mb-4 hidden rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+        ></p>
+        <button
+          type="submit"
+          id="btnEntrar"
+          class="relative w-full rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+        >
+          Iniciar sesión
+        </button>
+        <div
+          id="cargando"
+          class="mt-3 hidden text-center text-sm text-slate-500"
+        >
+          Cargando…
+        </div>
+      </form>
+      <p class="mt-6 text-center text-xs text-slate-500">
+        Parcial — consumo de API con JWT
+      </p>
+    </main>
+    <script type="module" src="/src/controladores/login.controlador.js"></script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "parcial2-deco",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Raíz del proyecto: un solo comando para instalar y arrancar API + frontend",
+  "scripts": {
+    "setup": "npm install --prefix api && npm install --prefix frontend",
+    "dev": "concurrently -n api,web -c blue,green \"npm start --prefix api\" \"npm run dev --prefix frontend\"",
+    "start": "npm run dev",
+    "api": "npm start --prefix api",
+    "web": "npm run dev --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

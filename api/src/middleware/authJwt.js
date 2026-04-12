@@ -17,7 +17,6 @@ export function authJwt(req, res, next) {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET);
-    req.usuarioJwt = payload;
     if (payload.activo === false) {
       return respuestas.error(
         res,

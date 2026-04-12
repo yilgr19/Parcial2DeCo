@@ -1,20 +1,12 @@
 let productos = [];
 let nextId = 1;
 
+function incrementarId() {
+  nextId += 1;
+}
+
 export function getProductos() {
   return productos;
-}
-
-export function setProductosLista(lista) {
-  productos = lista;
-}
-
-export function getNextId() {
-  return nextId;
-}
-
-export function incrementarId() {
-  nextId += 1;
 }
 
 export function findById(id) {
