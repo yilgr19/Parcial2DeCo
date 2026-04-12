@@ -11,7 +11,7 @@ Todo se hace desde la carpeta del proyecto:
 
 ### Opción A — Doble clic (Windows)
 
-1. Entrá a la carpeta del proyecto en el Explorador de archivos.
+1. Entrar a la carpeta del proyecto en el Explorador de archivos.
 2. Hacé **doble clic** en **`iniciar.bat`**.
 3. La primera vez puede tardar mientras instala dependencias.
 4. Cuando veas en la consola la URL del frontend (Vite), abrila en el navegador (por ejemplo `http://localhost:5173` → redirige al login en `vistas/login.html`).
@@ -50,7 +50,7 @@ Iniciá sesión con por ejemplo usuario `admin` y contraseña `admin123`.
 
 ---
 
-## Si preferís dos terminales por separado
+## Si prefieres dos terminales por separado
 
 | Qué | Comando (desde la carpeta del proyecto) |
 |-----|----------------------------------------|
@@ -85,8 +85,6 @@ Salida en `frontend/dist/`. Vista previa: `npm run preview` dentro de `frontend/
 ## Documentación
 
 - [api/README.md](api/README.md) — API, JWT, productos en memoria, tabla de verificación de endpoints.
-- [api/pruebas-api.http](api/pruebas-api.http) — ejemplos de cada endpoint (REST Client).
-- En la carpeta `api`, con la API en marcha: **`npm run verify`** — comprueba todos los endpoints automáticamente (sin pegar tokens).
 - [frontend/README.md](frontend/README.md) — archivos del frontend.
 
 Los datos de productos están **solo en memoria** en el servidor; al reiniciar la API se pierden.
