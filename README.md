@@ -85,8 +85,6 @@ La salida queda en `frontend/dist/`. Vista previa: `npm run preview` dentro de `
 ## Documentación
 
 - [api/README.md](api/README.md) — API, JWT, productos en memoria, tabla de comprobación de endpoints.
-- [api/pruebas-api.http](api/pruebas-api.http) — ejemplos de cada endpoint (REST Client).
-- En la carpeta `api`, con la API en marcha: **`npm run verify`** — comprueba los endpoints automáticamente (sin pegar tokens).
 - [frontend/README.md](frontend/README.md) — archivos del frontend.
 
 Los productos están **solo en memoria** en el servidor; al reiniciar la API se pierden.
