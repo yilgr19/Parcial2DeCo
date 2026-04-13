@@ -1,6 +1,3 @@
-/**
- * Texto informativo y botones anterior/siguiente.
- */
 export function actualizarBarraPaginacion({
   infoEl,
   btnAnt,

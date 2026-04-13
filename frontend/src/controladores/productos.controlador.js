@@ -6,7 +6,6 @@ import {
   setBotonCargando,
   abrirModal,
   cerrarModal,
-  enlazarCierreBackdrop,
   limpiarErroresPorMapa,
   pintarErroresLocales,
   pintarErroresBackend,
@@ -201,7 +200,9 @@ btnGuardarEdit.addEventListener("click", async () => {
   }
 });
 
-enlazarCierreBackdrop(modalEditar, () => cerrarModal(modalEditar));
+modalEditar.addEventListener("click", (e) => {
+  if (e.target === modalEditar) cerrarModal(modalEditar);
+});
 
 async function cargarLista() {
   setOverlayCargando(cargandoLista, true);

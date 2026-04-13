@@ -1,10 +1,6 @@
 let productos = [];
 let nextId = 1;
 
-function incrementarId() {
-  nextId += 1;
-}
-
 export function getProductos() {
   return productos;
 }
@@ -14,8 +10,7 @@ export function findById(id) {
 }
 
 export function createProducto(payload) {
-  const id = nextId;
-  incrementarId();
+  const id = nextId++;
   const nuevo = { id, ...payload };
   productos.push(nuevo);
   return nuevo;

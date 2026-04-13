@@ -36,7 +36,7 @@ export function validarCamposProducto(valores) {
 
   const est = valores.estado;
   if (est && est !== "activo" && est !== "inactivo") {
-    errores.estado = "Elegí activo o inactivo";
+    errores.estado = "Elige activo o inactivo";
   }
 
   return errores;

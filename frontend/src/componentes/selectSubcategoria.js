@@ -1,6 +1,3 @@
-/**
- * Rellena el &lt;select&gt; de subcategorías a partir de un Set acumulado.
- */
 export function actualizarOpcionesSubcategoria(select, subcategoriasSet) {
   const valActual = select.value;
   select.innerHTML = "";
