@@ -250,7 +250,7 @@ api/
 
 ### Verificación automática (recomendado — no hace falta pegar tokens)
 
-Con la API **ya en marcha** en otra terminal, en la carpeta `api` ejecutá:
+Con la API **ya en marcha** en otra terminal, en la carpeta `api` ejecuta:
 
 ```bash
 npm run verify
@@ -258,40 +258,40 @@ npm run verify
 
 El script `scripts/verificar-endpoints.mjs` llama a los endpoints (login, listado, crear, editar, errores, usuario inactivo, borrar, etc.) y muestra líneas `OK` o `FAIL`. Si todo sale bien, al final verás **Resultado: todo OK.**
 
-Si falla la conexión, el mensaje te indica que tenés que arrancar antes la API con `npm start`.
+Si falla la conexión, el mensaje indica que tienes que arrancar antes la API con `npm start`.
 
 ### Probar con el archivo `pruebas-api.http` (extensión REST Client)
 
-**Idea general:** podés enviar peticiones desde el editor con la extensión **REST Client** y el archivo **`api/pruebas-api.http`**.
+**Idea general:** puedes enviar peticiones desde el editor con la extensión **REST Client** y el archivo **`api/pruebas-api.http`**.
 
 El archivo ya está armado para que **no tengas que copiar el token a mano**: la primera petición se llama **Login admin** y lleva `# @name loginAdmin`. Las siguientes usan automáticamente `{{loginAdmin.response.body.$.data.access_token}}` en el header `Authorization`.
 
 **Pasos:**
 
-1. Instalá **REST Client** (*Huachao Mao*) en Cursor/VS Code.
+1. Instala **REST Client** (*Huachao Mao*) en Cursor/VS Code.
 2. `npm start` en `api/` (la API tiene que estar corriendo).
-3. Abrí **`pruebas-api.http`**.
-4. Hacé clic en **Send Request** del bloque **Login admin** primero (así queda guardada la respuesta para el token).
-5. Después podés enviar el resto de bloques en cualquier orden; los que van a `/productos` ya usan el Bearer del login admin.
-6. Para el flujo **usuario inactivo**, enviá antes el bloque **Login — usuario inactivo** (`# @name loginInactivo`) y luego **Listar con token de usuario inactivo**.
+3. Abre **`pruebas-api.http`**.
+4. Haz clic en **Send Request** del bloque **Login admin** primero (así queda guardada la respuesta para el token).
+5. Después puedes enviar el resto de bloques en cualquier orden; los que van a `/productos` ya usan el Bearer del login admin.
+6. Para el flujo **usuario inactivo**, envía antes el bloque **Login — usuario inactivo** (`# @name loginInactivo`) y luego **Listar con token de usuario inactivo**.
 
-Si en tu versión de REST Client no resuelve bien `{{loginAdmin.response...}}`, usá **`npm run verify`** arriba o **Thunder Client** (siguiente sección).
+Si en tu versión de REST Client no resuelve bien `{{loginAdmin.response...}}`, usa **`npm run verify`** arriba o **Thunder Client** (siguiente sección).
 
 ### Verificación con Thunder Client
 
 **Thunder Client** es una extensión de VS Code / Cursor para probar APIs sin salir del editor.
 
-1. **Instalar:** en el panel de extensiones, buscá **Thunder Client** (autor *Ranga Vadhineni*) e instalala.
-2. **Levantar la API:** `npm start` en la carpeta `api/` y comprobá el mensaje `API escuchando en http://localhost:3000`.
+1. **Instalar:** en el panel de extensiones, busca **Thunder Client** (autor *Ranga Vadhineni*) e instálala.
+2. **Levantar la API:** `npm start` en la carpeta `api/` y comprueba el mensaje `API escuchando en http://localhost:3000`.
 3. **Abrir Thunder Client:** icono del rayo en la barra lateral (o menú *View → Thunder Client*).
 4. **Login (obtener token):**
    - **New Request** → método **POST** → URL `http://localhost:3000/auth`.
-   - Pestaña **Body** → **JSON** → pegá:  
+   - Pestaña **Body** → **JSON** → pega:  
      `{"usuario":"admin","password":"admin123"}`  
-   - **Send**. En la respuesta, copiá el valor de `data.access_token` (sin comillas).
+   - **Send**. En la respuesta, copia el valor de `data.access_token` (sin comillas).
 5. **Peticiones a `/productos` (con Bearer):**
    - Nueva petición **GET** → `http://localhost:3000/productos`.
-   - Pestaña **Auth** → tipo **Bearer** → en **Token** pegá el `access_token` que copiaste (o usá una variable, ver el punto 7).
+   - Pestaña **Auth** → tipo **Bearer** → en **Token** pega el `access_token` que copiaste (o usa una variable, ver el punto 7).
    - **Send** → deberías ver **200**, `data` (array) y `pagination`.
 6. **Mismo patrón** para el resto de endpoints (misma base `http://localhost:3000`):
    - **GET** `http://localhost:3000/productos/1` (Auth → Bearer).
@@ -300,11 +300,11 @@ Si en tu versión de REST Client no resuelve bien `{{loginAdmin.response...}}`, 
    - **DELETE** `http://localhost:3000/productos/1` (Auth → Bearer).
    - **GET** con query, por ejemplo:  
      `http://localhost:3000/productos?nombre=coca&subcategoria=bebidas&estado=activo&page=1&limit=10` (Auth → Bearer).
-7. **Opcional — variables:** en Thunder Client podés crear un **Environment** (por ejemplo `local`) con una variable `token`, y en cada request usar **Auth → Bearer** y en el token `{{token}}`. Tras cada login, actualizá el valor de `token` en el entorno para no pegarlo a mano en cada petición.
-8. **Casos extra (401, 403, 400, 404):** probá **GET** `/productos` **sin** pestaña Auth (debería dar **401**). Para **403**, hacé login con `inactivo` / `noactivo1`, copiá ese token y usalo en **GET** `/productos`. Para **404**, **GET** `/productos/9999` con Bearer de admin. Los cuerpos de error coinciden con la tabla de abajo.
-9. **Lista de escenarios:** el archivo **`pruebas-api.http`** del repo enumera los mismos casos; podés **recrear cada uno** como request en Thunder Client o copiar URL, método y JSON desde ahí.
+7. **Opcional — variables:** en Thunder Client puedes crear un **Environment** (por ejemplo `local`) con una variable `token`, y en cada request usar **Auth → Bearer** y en el token `{{token}}`. Tras cada login, actualiza el valor de `token` en el entorno para no pegarlo a mano en cada petición.
+8. **Casos extra (401, 403, 400, 404):** prueba **GET** `/productos` **sin** pestaña Auth (debería dar **401**). Para **403**, haz login con `inactivo` / `noactivo1`, copia ese token y úsalo en **GET** `/productos`. Para **404**, **GET** `/productos/9999` con Bearer de admin. Los cuerpos de error coinciden con la tabla de abajo.
+9. **Lista de escenarios:** el archivo **`pruebas-api.http`** del repo enumera los mismos casos; puedes **recrear cada uno** como request en Thunder Client o copiar URL, método y JSON desde ahí.
 
-Compará cada respuesta con la **tabla de verificación** siguiente.
+Compara cada respuesta con la **tabla de verificación** siguiente.
 
 ### Tabla de verificación rápida (qué deberías obtener)
 

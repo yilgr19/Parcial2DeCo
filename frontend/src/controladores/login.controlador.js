@@ -1,4 +1,10 @@
 import "../css/estilos.css";
+import {
+  mostrarAlerta,
+  ocultarAlerta,
+  setBotonCargando,
+  setIndicadorCargando,
+} from "../componentes/index.js";
 import { iniciarSesion } from "../modelos/api.js";
 import { guardarToken, tomarMensajeSesion } from "../modelos/sesion.js";
 
@@ -9,18 +15,18 @@ const spinner = document.getElementById("cargando");
 
 const flash = tomarMensajeSesion();
 if (flash) {
-  mostrarError(flash);
+  mostrarAlerta(errBox, flash);
 }
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  errBox.classList.add("hidden");
-  errBox.textContent = "";
+  ocultarAlerta(errBox);
 
   const usuario = document.getElementById("usuario").value.trim();
   const password = document.getElementById("password").value;
 
-  setCargando(true);
+  setIndicadorCargando(spinner, true);
+  setBotonCargando(btn, true);
 
   try {
     const { res, data } = await iniciarSesion(usuario, password);
@@ -32,26 +38,18 @@ form.addEventListener("submit", async (e) => {
     }
 
     if (res.status === 401) {
-      mostrarError(
+      mostrarAlerta(
+        errBox,
         data?.error?.message || "Usuario o contraseña incorrectos"
       );
       return;
     }
 
-    mostrarError("No se pudo iniciar sesión.");
+    mostrarAlerta(errBox, "No se pudo iniciar sesión.");
   } catch {
-    mostrarError("Error de red. ¿Está la API en marcha?");
+    mostrarAlerta(errBox, "Error de red. ¿Está la API en marcha?");
   } finally {
-    setCargando(false);
+    setIndicadorCargando(spinner, false);
+    setBotonCargando(btn, false);
   }
 });
-
-function mostrarError(msg) {
-  errBox.textContent = msg;
-  errBox.classList.remove("hidden");
-}
-
-function setCargando(on) {
-  spinner.classList.toggle("hidden", !on);
-  btn.disabled = on;
-}

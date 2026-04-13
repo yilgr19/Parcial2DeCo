@@ -1,5 +1,20 @@
 import "../css/estilos.css";
 import {
+  mostrarAlerta,
+  ocultarAlerta,
+  setOverlayCargando,
+  setBotonCargando,
+  abrirModal,
+  cerrarModal,
+  enlazarCierreBackdrop,
+  limpiarErroresPorMapa,
+  pintarErroresLocales,
+  pintarErroresBackend,
+  actualizarOpcionesSubcategoria,
+  actualizarBarraPaginacion,
+  renderizarTablaProductos,
+} from "../componentes/index.js";
+import {
   pedirProductos,
   crearProducto,
   actualizarProducto,
@@ -94,8 +109,8 @@ btnSig.addEventListener("click", () => {
 });
 
 btnCrear.addEventListener("click", async () => {
-  limpiarErroresNuevo();
-  msgGlobal.classList.add("hidden");
+  limpiarErroresPorMapa(IDS_ERR_NUEVO, ["errNuevoGeneral"]);
+  ocultarAlerta(msgGlobal);
 
   const valores = leerFormNuevo();
   const errores = validarCamposProducto(valores);
@@ -139,12 +154,11 @@ btnCrear.addEventListener("click", async () => {
 });
 
 btnCancelarEdit.addEventListener("click", () => {
-  modalEditar.classList.add("hidden");
-  modalEditar.classList.remove("flex");
+  cerrarModal(modalEditar);
 });
 
 btnGuardarEdit.addEventListener("click", async () => {
-  limpiarErroresEdit();
+  limpiarErroresPorMapa(IDS_ERR_EDIT, ["errEditGeneral"]);
   const id = Number(document.getElementById("eId").value);
   const valores = leerFormEdit();
   const errores = validarCamposProducto(valores);
@@ -166,8 +180,7 @@ btnGuardarEdit.addEventListener("click", async () => {
     if (!r) return;
 
     if (r.res.ok && r.data.data) {
-      modalEditar.classList.add("hidden");
-      modalEditar.classList.remove("flex");
+      cerrarModal(modalEditar);
       await cargarLista();
       return;
     }
@@ -188,17 +201,11 @@ btnGuardarEdit.addEventListener("click", async () => {
   }
 });
 
-modalEditar.addEventListener("click", (e) => {
-  if (e.target === modalEditar) {
-    modalEditar.classList.add("hidden");
-    modalEditar.classList.remove("flex");
-  }
-});
+enlazarCierreBackdrop(modalEditar, () => cerrarModal(modalEditar));
 
 async function cargarLista() {
-  cargandoLista.classList.remove("hidden");
-  cargandoLista.classList.add("flex");
-  msgGlobal.classList.add("hidden");
+  setOverlayCargando(cargandoLista, true);
+  ocultarAlerta(msgGlobal);
 
   const limit = Number(selectLimite.value) || 10;
 
@@ -218,7 +225,8 @@ async function cargarLista() {
     if (!r) return;
 
     if (!r.res.ok) {
-      mostrarGlobal(
+      mostrarAlerta(
+        msgGlobal,
         r.data.error?.message || "Error al cargar la lista."
       );
       tablaCuerpo.innerHTML = "";
@@ -231,9 +239,12 @@ async function cargarLista() {
     lista.forEach((p) => {
       if (p.subcategoria) subcategoriasVistas.add(String(p.subcategoria));
     });
-    actualizarSelectSubcategorias();
+    actualizarOpcionesSubcategoria(filtroSub, subcategoriasVistas);
 
-    renderTabla(lista);
+    renderizarTablaProductos(tablaCuerpo, lista, {
+      onEditar: abrirEditar,
+      onEliminar: confirmarBorrar,
+    });
 
     const total = pag?.total ?? lista.length;
     const totalPag = pag?.totalPages ?? 0;
@@ -241,78 +252,21 @@ async function cargarLista() {
 
     if (pagActual !== pagina) pagina = pagActual;
 
-    if (total === 0) {
-      infoPaginacion.textContent = "Sin productos (0)";
-    } else {
-      infoPaginacion.textContent = `Página ${pagActual} de ${totalPag} — ${total} producto(s)`;
-    }
-
-    btnAnt.disabled = pagActual <= 1;
-    btnSig.disabled = totalPag === 0 || pagActual >= totalPag;
+    actualizarBarraPaginacion({
+      infoEl: infoPaginacion,
+      btnAnt,
+      btnSig,
+      pagActual,
+      totalPag,
+      total,
+    });
   } finally {
-    cargandoLista.classList.add("hidden");
-    cargandoLista.classList.remove("flex");
+    setOverlayCargando(cargandoLista, false);
   }
-}
-
-function renderTabla(lista) {
-  tablaCuerpo.innerHTML = "";
-  if (lista.length === 0) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = 7;
-    td.className = "px-3 py-6 text-center text-slate-500";
-    td.textContent = "No hay productos con estos filtros.";
-    tr.appendChild(td);
-    tablaCuerpo.appendChild(tr);
-    return;
-  }
-
-  for (const p of lista) {
-    const tr = document.createElement("tr");
-    tr.className = "border-b border-slate-100 hover:bg-slate-50";
-
-    tr.appendChild(tdTexto(p.nombre));
-    tr.appendChild(tdTexto(p.descripcion));
-    tr.appendChild(tdTexto(p.subcategoria));
-    tr.appendChild(tdTexto(String(p.precio)));
-    tr.appendChild(tdTexto(String(p.precioxcantidad)));
-    tr.appendChild(tdTexto(p.estado));
-
-    const tdAcc = document.createElement("td");
-    tdAcc.className = "px-3 py-2 whitespace-nowrap";
-
-    const bEdit = document.createElement("button");
-    bEdit.type = "button";
-    bEdit.className =
-      "mr-2 rounded bg-amber-500 px-2 py-1 text-xs text-white hover:bg-amber-600";
-    bEdit.textContent = "Editar";
-    bEdit.addEventListener("click", () => abrirEditar(p));
-
-    const bDel = document.createElement("button");
-    bDel.type = "button";
-    bDel.className =
-      "rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700";
-    bDel.textContent = "Eliminar";
-    bDel.addEventListener("click", () => confirmarBorrar(p));
-
-    tdAcc.appendChild(bEdit);
-    tdAcc.appendChild(bDel);
-    tr.appendChild(tdAcc);
-
-    tablaCuerpo.appendChild(tr);
-  }
-}
-
-function tdTexto(texto) {
-  const td = document.createElement("td");
-  td.className = "max-w-[200px] truncate px-3 py-2";
-  td.textContent = texto ?? "";
-  return td;
 }
 
 function abrirEditar(p) {
-  limpiarErroresEdit();
+  limpiarErroresPorMapa(IDS_ERR_EDIT, ["errEditGeneral"]);
   document.getElementById("eId").value = String(p.id);
   document.getElementById("eNombre").value = p.nombre ?? "";
   document.getElementById("eDesc").value = p.descripcion ?? "";
@@ -321,14 +275,11 @@ function abrirEditar(p) {
   document.getElementById("ePxc").value = String(p.precioxcantidad ?? "");
   document.getElementById("eEstado").value = p.estado ?? "activo";
   document.getElementById("errEditGeneral").textContent = "";
-  modalEditar.classList.remove("hidden");
-  modalEditar.classList.add("flex");
+  abrirModal(modalEditar);
 }
 
 async function confirmarBorrar(p) {
-  const ok = window.confirm(
-    `¿Eliminar el producto "${p.nombre}"?`
-  );
+  const ok = window.confirm(`¿Eliminar el producto "${p.nombre}"?`);
   if (!ok) return;
 
   const r = await eliminarProducto(p.id);
@@ -339,29 +290,7 @@ async function confirmarBorrar(p) {
     return;
   }
 
-  mostrarGlobal(r.data.error?.message || "No se pudo eliminar.");
-}
-
-function actualizarSelectSubcategorias() {
-  const valActual = filtroSub.value;
-  filtroSub.innerHTML = "";
-  const opt0 = document.createElement("option");
-  opt0.value = "";
-  opt0.textContent = "Todas";
-  filtroSub.appendChild(opt0);
-
-  const ordenadas = [...subcategoriasVistas].sort((a, b) =>
-    a.localeCompare(b)
-  );
-  for (const s of ordenadas) {
-    const op = document.createElement("option");
-    op.value = s;
-    op.textContent = s;
-    filtroSub.appendChild(op);
-  }
-  if ([...filtroSub.options].some((o) => o.value === valActual)) {
-    filtroSub.value = valActual;
-  }
+  mostrarAlerta(msgGlobal, r.data.error?.message || "No se pudo eliminar.");
 }
 
 function leerFormNuevo() {
@@ -393,43 +322,6 @@ function leerFormEdit() {
     precioxcantidad: document.getElementById("ePxc").value,
     estado: document.getElementById("eEstado").value,
   };
-}
-
-function limpiarErroresNuevo() {
-  [...Object.values(IDS_ERR_NUEVO), "errNuevoGeneral"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = "";
-  });
-}
-
-function limpiarErroresEdit() {
-  [...Object.values(IDS_ERR_EDIT), "errEditGeneral"].forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = "";
-  });
-}
-
-function pintarErroresLocales(errores, mapaIds) {
-  Object.entries(errores).forEach(([campo, msg]) => {
-    const id = mapaIds[campo];
-    if (id) document.getElementById(id).textContent = msg;
-  });
-}
-
-function pintarErroresBackend(details, mapaIds) {
-  details.forEach((d) => {
-    const id = mapaIds[d.field];
-    if (id) document.getElementById(id).textContent = d.message;
-  });
-}
-
-function mostrarGlobal(texto) {
-  msgGlobal.textContent = texto;
-  msgGlobal.classList.remove("hidden");
-}
-
-function setBotonCargando(btn, on) {
-  btn.disabled = on;
 }
 
 cargarLista();
