@@ -8,12 +8,16 @@ export function obtenerToken() {
   return localStorage.getItem(CLAVE_TOKEN);
 }
 
+export function tokenValido(valor) {
+  return typeof valor === "string" && valor.trim().length > 0;
+}
+
 export function borrarToken() {
   localStorage.removeItem(CLAVE_TOKEN);
 }
 
 export function haySesion() {
-  return Boolean(obtenerToken());
+  return tokenValido(obtenerToken() ?? "");
 }
 
 export function guardarMensajeSesion(texto) {
