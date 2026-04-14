@@ -186,9 +186,6 @@
     },
     {
       "name": "User inactivo",
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
       "request": {
         "auth": {
           "type": "jwt",
@@ -230,11 +227,11 @@
             }
           ]
         },
-        "method": "GET",
+        "method": "POST",
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzdWFyaW8iOiJpbmFjdGl2byIsImFjdGl2byI6ZmFsc2UsImlhdCI6MTc3NjAzNjYwNCwiZXhwIjoxNzc2MDQwMjA0fQ.OtMFibkFzlhrCYQGtlnyiGS95r2dNmsRN51VNLN3x04",
+            "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjMsInVzdWFyaW8iOiJpbmFjdGl2byIsImFjdGl2byI6ZmFsc2UsImlhdCI6MTc3NjE5MDk2MiwiZXhwIjoxNzc2MTk0NTYyfQ.9WWQasechBLA4jACeA11-hpNs1SddtX8_q918OsfmWk",
             "type": "text"
           }
         ],
@@ -248,16 +245,32 @@
           }
         },
         "url": {
-          "raw": "http://localhost:3000/productos",
+          "raw": "http://localhost:3000/auth",
           "protocol": "http",
           "host": [
             "localhost"
           ],
           "port": "3000",
           "path": [
-            "productos"
+            "auth"
           ]
         }
+      },
+      "response": []
+    },
+    {
+      "name": "Cosultar pro Inactivo",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Producto Especifico",
+      "request": {
+        "method": "GET",
+        "header": []
       },
       "response": []
     }
