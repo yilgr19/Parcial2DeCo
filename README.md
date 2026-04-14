@@ -9,6 +9,8 @@ Incluye un backend en **Node/Express** con JWT y CRUD en memoria, y un frontend 
 Todo se hace desde la carpeta del proyecto  
 `Parcial2 DeCo` (donde está este archivo `README.md`).
 
+**Primera vez (clon o ZIP):** en `frontend/`, copia `.env.example` como `.env` si aún no existe (define `VITE_API_URL`; si no lo creas, el frontend usa por defecto `http://localhost:3000`).
+
 ### Opción A — Doble clic (Windows)
 
 1. Abre la carpeta del proyecto en el Explorador de archivos.
@@ -68,6 +70,7 @@ Inicia sesión, por ejemplo, con usuario `admin` y contraseña `admin123`.
 | **`api/`** | Servidor REST. Más detalle en `api/README.md`. |
 | **`frontend/`** | Login y productos. Más detalle en `frontend/README.md`. |
 | **`Enunciado/`** | Enunciados del parcial. |
+| **`My Collection.postman_collection.json`** (raíz) | Colección de Postman con ejemplos de los endpoints (importar en Postman: *File → Import*). |
 
 ---
 
@@ -86,5 +89,6 @@ La salida queda en `frontend/dist/`. Vista previa: `npm run preview` dentro de `
 
 - [api/README.md](api/README.md) — API, JWT, productos en memoria, tabla de comprobación de endpoints.
 - [frontend/README.md](frontend/README.md) — archivos del frontend.
+- Pruebas con Postman: importa **`My Collection.postman_collection.json`** desde la raíz del proyecto (incluye llamadas a `/auth` y `/productos` con variables de entorno de colección).
 
 Los productos están **solo en memoria** en el servidor; al reiniciar la API se pierden.
